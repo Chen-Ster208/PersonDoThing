@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Person Do Thing</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100vw;
+        }
+        #do-btn {
+            margin: 40px 0 20px 0;
+            font-size: 1.2em;
+            display: block;
+            align-self: center;
+        }
+        #result {
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            color: #333;
+            text-align: center;
+            align-self: center;
+        }
+        #do-list {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+        .do-column {
+            flex: 1;
+            margin: 0 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <button id="do-btn">What Person Do?</button>
+    <div id="result"></div>
+    <div id="do-list"></div>
+    <script type="module">
+        import { loadThings, getRandomValue } from './JS_code.js';
+
+        const btn = document.getElementById('do-btn');
+        const resultDiv = document.getElementById('result');
+        let firstClick = true;
+        let things = [];
+        
+        // Load the things list before enabling the button
+        let thingsLoaded = false;
+        things = loadThings().then(() => {
+            thingsLoaded = true;
+        });
+
+        btn.addEventListener('click', () => {
+            if (!thingsLoaded) return;
+            let value = getRandomValue();
+            // Debug: log the value
+            console.log('getRandomValue() returned:', value);
+            // Defensive: If value is not a string, print a warning
+            if (typeof value !== 'string') {
+                resultDiv.textContent = '[Error: No valid value or wrong return type]';
+                return;
+            }
+            // Prevent printing HTML tags if value is an element or contains angle brackets
+            if (/<[a-z][\s\S]*>/i.test(value) || value.includes('<') || value.includes('>')) {
+                resultDiv.textContent = '[Error: Value looks like HTML or contains angle brackets, check JS_code.js and Things_List.txt]';
+                console.warn('Value contains HTML tags or angle brackets:', value);
+                return;
+            }
+            // Defensive: trim and sanitize
+            value = value.trim();
+            resultDiv.textContent = value;
+            if (firstClick) {
+                btn.textContent = 'Person Do Thing No Same';
+                firstClick = false;
+            }
+        });
+
+        // Load Do_List.txt and display in 3 columns
+        fetch('/Resources/Do_List.txt')
+            .then(response => response.text())
+            .then(text => {
+                console.log('Do_List.txt content:', text);
+                const words = text.split(/\r?\n/).filter(line => line.trim() !== '');
+                const colCount = 3;
+                const colSize = Math.ceil(words.length / colCount);
+                const columns = Array.from({length: colCount}, (_, i) =>
+                    words.slice(i * colSize, (i + 1) * colSize)
+                );
+                const doListDiv = document.getElementById('do-list');
+                columns.forEach(col => {
+                    const colDiv = document.createElement('div');
+                    colDiv.className = 'do-column';
+                    col.forEach(word => {
+                        const p = document.createElement('p');
+                        p.textContent = word;
+                        colDiv.appendChild(p);
+                    });
+                    doListDiv.appendChild(colDiv);
+                });
+            });
+    </script>
+</body>
+</html>
