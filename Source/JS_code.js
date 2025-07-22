@@ -1,7 +1,7 @@
 // Load Things_List.txt using fetch (relative to HTML file)
 let things = [];
 export function loadThings() {
-    return fetch('/Resources/Things_List.txt')
+    return fetch('/../Resources/Things_List.txt')
         .then(response => response.text())
         .then(text => {
             things = text.split(/\r?\n/).filter(line => line.trim() !== '');
