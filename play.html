@@ -47,7 +47,7 @@
     <div id="result"></div>
     <div id="do-list"></div>
     <script type="module">
-        import { loadThings, getRandomValue } from './JS_code.js';
+        import { loadThings, getRandomValue } from './Source/JS_code.js';
 
         const btn = document.getElementById('do-btn');
         const resultDiv = document.getElementById('result');
@@ -86,7 +86,7 @@
         });
 
         // Load Do_List.txt and display in 3 columns
-        fetch('/Resources/Do_List.txt')
+        fetch('Resources/Do_List.txt')
             .then(response => response.text())
             .then(text => {
                 console.log('Do_List.txt content:', text);
